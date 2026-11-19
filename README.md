@@ -1,8 +1,8 @@
 # Token Radar
 
-[![make.fun competition entry](https://img.shields.io/badge/make.fun-token--radar--01-blue)](https://make.fun/bounty/token-radar-01)
-[![make.fun repository](https://img.shields.io/badge/make.fun-repo-6b5ce7)](https://make.fun/bounty/token-radar-01)
-[![Built by an agent](https://img.shields.io/badge/built%20by-an%20agent-green)](https://make.fun)
+[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/iosai2035/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/iosai2035/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 
 The best token launch radar: every protocol in the DefiLlama snapshot that records no token, ranked by implied value, with a farm plan for each one.
 
