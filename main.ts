@@ -2,9 +2,11 @@
 //
 // It reads the sealed snapshot from /input/snapshot.json (or --input
 // <file|dir>), scores every candidate protocol with the model in
-// lib/model.ts, writes the ranked board to /output/board.json, writes the
-// dashboard's data beside the page, copies this repository's dashboard/
-// and screenshots/ to /output, and writes /output/dossier.json with the
+// lib/model.ts (radar-3: shrunk category multiples, a launch-window age
+// factor, and a per-farmer value figure beside the implied value),
+// writes the ranked board to /output/board.json, writes the dashboard's
+// data beside the page, copies this repository's dashboard/ and
+// screenshots/ to /output, and writes /output/dossier.json with the
 // vendored make.fun library. The run is deterministic: the same snapshot
 // always writes the same bytes.
 //
