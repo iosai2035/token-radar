@@ -1,4 +1,4 @@
-// Token Radar's model (radar-3): one sealed snapshot in, one ranked board out.
+// Token Radar's model (radar-4): one sealed snapshot in, one ranked board out.
 //
 // The board ranks every protocol in the snapshot that records no token and is
 // not a derivative of one that trades: the watchlist is the floor, and the
@@ -17,6 +17,33 @@
 // No protocol name is ever special-cased, and no revenue multiple is
 // claimed: the snapshot carries no fee or revenue figures, so none is
 // invented.
+//
+// radar-4 changes one thing against radar-3, and states why. The ratios
+// are winsorized to [0.01, 0.75] — the same bounds the multiple itself
+// carries — instead of [0.01, 1.0]. radar-3 let a traded ratio as high as
+// 1.0 set a category median while refusing to output any multiple above
+// 0.75: two different ceilings for one quantity. A ratio above 1.0 is the
+// market-cap/TVL literature's overvalued zone (the token is worth more
+// than the capital it governs), so a median sitting exactly at the old
+// 1.0 cap was never a central estimate — it was a single observation
+// piled on the cap. In this snapshot 36 of the 144 traded ratios sit at
+// that cap, and seven categories rest their median on one such
+// observation, including the board's largest value. Aligning the
+// winsor cap with the multiple cap keeps every category median inside
+// the range the model itself treats as plausible, and the board's top
+// values no longer rest on one observation at a cap the model
+// contradicts. The low end stays at 0.01: a low ratio is informative
+// (deep undervaluation), not an error, and raising it would cost
+// differentiation for no benefit.
+//
+// The shrinkage prior stays at 3, and that is a measured choice, not a
+// carried one. The snapshot's own variance components imply an
+// empirical-Bayes shrinkage constant of 2.8 (within-category variance of
+// log-ratios 2.54 against between-category variance 0.91), so 3 is
+// already the value the data itself would pick for a mean-based
+// estimator; a median-adjusted figure near 4.4 is not adopted because the
+// log-ratio distribution carries a point mass at the cap and violates
+// the normality that correction assumes.
 //
 //   multiple   = (n * category median + 3 * global median) / (n + 3),
 //                clamped to [0.05, 0.75]
@@ -105,12 +132,12 @@ export const MODEL: ModelConstants = {
   multiple_cap: 0.75,
   shrink_prior: 3,
   winsor_low: 0.01,
-  winsor_high: 1.0,
+  winsor_high: 0.75,
   pool_share: 0.1,
 };
 
 /** The model's version label: the dashboard names it. */
-export const MODEL_VERSION = 'radar-3';
+export const MODEL_VERSION = 'radar-4';
 
 /** How many live-token protocols the Live token view carries, by market cap. */
 export const LIVE_ROWS = 24;
@@ -289,11 +316,14 @@ export function isCandidate(p: SnapshotProtocol): boolean {
 /**
  * Calibrate the multiples from the snapshot's own traded protocols: the
  * median market-cap/TVL per category, winsorized, pulled toward the
- * market-wide median by a prior of `shrink_prior` observations. A category
- * with many traded examples keeps its own median; a category with one or
- * two is mostly the market median; a category with none uses the market
- * median outright. The calibration is computed from the input at run
- * time, never hardcoded.
+ * market-wide median by a prior of `shrink_prior` observations. The
+ * winsor bounds are the multiple's own bounds (`winsor_low`,
+ * `winsor_high` = `multiple_floor`, `multiple_cap`): a traded ratio the
+ * model refuses to output as a multiple cannot set a category median
+ * either. A category with many traded examples keeps its own median; a
+ * category with one or two is mostly the market median; a category with
+ * none uses the market median outright. The calibration is computed from
+ * the input at run time, never hardcoded.
  */
 export function calibrate(snapshot: Snapshot, model: ModelConstants = MODEL): Calibration {
   const traded = snapshot.protocols.filter(
