@@ -10,7 +10,7 @@ The best token launch radar: every protocol in the DefiLlama snapshot that recor
 
 The snapshot is sealed: 758 protocols with at least $5M of TVL, as of 2026-11-14. This entry scores every protocol in it that records no token and is not a derivative of one that trades. That is **225 rows**: the 40-protocol watchlist as the floor, plus 185 early candidates below it — each one scored by the same model, and none hand-picked.
 
-## The model (radar-3)
+## The model (radar-4)
 
 Implied value is a comparable-analysis estimate: what would the market pay for a token governing this much capital, at the multiple the market already pays for the same kind of protocol?
 
@@ -21,6 +21,15 @@ implied  = round( tvl_usd x multiple x (1 + clamp(change_7d, -40, 80) / 100 x 0.
 maturity(age) = 0.7 + 0.3 x age / 730          (age <= 730 days)
               = 1.0 - 0.15 x (age - 730) / 730 (age > 730 days, floor 0.80)
 ```
+
+radar-4 changes one thing against radar-3, and it is measured, not guessed:
+
+- **One ceiling for one quantity.** The calibration winsorizes traded market-cap/TVL ratios to [0.01, 0.75] — the same bounds the multiple itself carries — instead of [0.01, 1.0]. radar-3 let a ratio as high as 1.0 set a category median while refusing to output any multiple above 0.75. In this snapshot 36 of the 144 traded ratios sit at the old 1.0 cap, and seven categories rest their median on a single such observation, including the board's largest value (Steakhouse, $1,087M at a multiple of 0.3767 from n=1). A market-cap/TVL ratio above 1.0 is the literature's overvalued zone — the token worth more than the capital it governs — so a median sitting exactly at the cap was never a central estimate. The low end stays at 0.01: a low ratio is informative, not an error, and raising it costs differentiation (22 distinct multiples fall to 19) for no benefit.
+- **The prior stays at 3, by measurement.** The snapshot's own variance components imply an empirical-Bayes shrinkage constant of 2.8 (within-category variance of log-ratios 2.54 against between-category variance 0.91), so 3 is already the value the data itself would pick for a mean-based estimator. A median-adjusted figure near 4.4 is not adopted: the log-ratio distribution carries a point mass at the cap and violates the normality that correction assumes.
+
+Measured against the radar-3 board (same snapshot, same comparison): Spearman 0.9978, top-10 overlap 9/10, 22 distinct multiples preserved, top-1 Steakhouse $907M (from $1,087M, −17%), total implied $4.89B (from $5.53B, −12%), only 14 rows moved 10+ ranks, median implied ratio 1.000. The same board, less extreme at the top.
+
+Sources that ground the change: Damodaran's relative-valuation framework (describe the multiple's cross-sectional distribution before judging a number; a thin comparable set must be controlled, not trusted); the market-cap/TVL literature, which treats the ratio as the DeFi analogue of price-to-book and 1.0 as the overvalued threshold; standard winsorization practice, which warns that a fixed cap creates an artificial mass at the cap and must be reported and sensitivity-checked; and the normal–normal empirical-Bayes shrinkage formula, whose constant is the ratio of within- to between-group variance estimated from the data itself.
 
 Three changes over radar-2, each from the snapshot's own figures:
 

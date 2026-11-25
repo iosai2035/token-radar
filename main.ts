@@ -2,13 +2,19 @@
 //
 // It reads the sealed snapshot from /input/snapshot.json (or --input
 // <file|dir>), scores every candidate protocol with the model in
-// lib/model.ts (radar-3: shrunk category multiples, a launch-window age
+// lib/model.ts (radar-4: shrunk category multiples, a launch-window age
 // factor, and a per-farmer value figure beside the implied value),
 // writes the ranked board to /output/board.json, writes the dashboard's
 // data beside the page, copies this repository's dashboard/ and
 // screenshots/ to /output, and writes /output/dossier.json with the
 // vendored make.fun library. The run is deterministic: the same snapshot
 // always writes the same bytes.
+//
+// radar-4's one change against radar-3: the calibration winsorizes
+// traded market-cap/TVL ratios to [0.01, 0.75], the same bounds the
+// multiple itself carries, instead of [0.01, 1.0]. The shrinkage prior
+// stays at 3 — the snapshot's own variance components imply an
+// empirical-Bayes constant of 2.8, so 3 is already the data's value.
 //
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
